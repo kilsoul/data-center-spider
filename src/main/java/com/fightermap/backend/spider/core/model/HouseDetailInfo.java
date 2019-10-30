@@ -1,0 +1,262 @@
+package com.fightermap.backend.spider.core.model;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.List;
+
+/**
+ * 房屋明细信息
+ *
+ * @author zengqk
+ */
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Data
+public class HouseDetailInfo {
+
+    /**
+     * 基本信息
+     */
+    private BaseInfo baseInfo;
+
+    /**
+     * 交易信息
+     */
+    private TransactionInfo transactionInfo;
+
+    /**
+     * 特色
+     */
+    private FeatureInfo featureInfo;
+
+    /**
+     * 户型
+     */
+    private List<RoomLayout> roomLayouts;
+
+    /**
+     * 房屋图片
+     */
+    private List<HousePhoto> housePhotos;
+
+    /**
+     * 基本信息
+     */
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Data
+    public static class BaseInfo {
+
+        /**
+         * 房屋户型
+         */
+        private String roomType;
+
+        /**
+         * 楼层信息
+         */
+        private String floorInfo;
+
+        /**
+         * 建筑面积
+         */
+        private Float constructionArea;
+
+        /**
+         * 户型结构
+         */
+        private String houseStructure;
+
+        /**
+         * 套内实际面积
+         */
+        private Float actualArea;
+
+        /**
+         * 建筑类型
+         */
+        private String buildingType;
+
+        /**
+         * 朝向
+         */
+        private String orientation;
+
+        /**
+         * 建筑结构类型
+         */
+        private String buildingStructureType;
+
+        /**
+         * 装修类型
+         */
+        private String decorationType;
+
+        /**
+         * 梯户比例
+         */
+        private String liftHouseScale;
+
+        /**
+         * 是否有电梯
+         */
+        private Boolean hasLift;
+
+        /**
+         * 产权年限
+         */
+        private Integer houseHoldYears;
+    }
+
+    /**
+     * 交易信息
+     */
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Data
+    public static class TransactionInfo {
+
+        /**
+         * 挂牌日期
+         */
+        private LocalDate listingDate;
+
+        /**
+         * 上次交易日期
+         */
+        private LocalDate lastTransactionDate;
+
+        /**
+         * 交易权属类型，如 商品房
+         */
+        private String transactionHoldType;
+
+        /**
+         * 房屋用途类型，如 普通住宅
+         */
+        private String houseUsageType;
+
+        /**
+         * 房屋年限
+         */
+        private String houseLimit;
+
+        /**
+         * 产权所属，如 非共有
+         */
+        private String houseHoldType;
+
+        /**
+         * 抵押信息
+         */
+        private String mortgageInfo;
+
+        /**
+         * 是否有抵押
+         */
+        private Boolean hasMortgage;
+
+        /**
+         * 房本备件
+         */
+        private String houseCredential;
+    }
+
+    /**
+     * 房源特色
+     */
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Data
+    public static class FeatureInfo {
+
+        /**
+         * 周边配套
+         */
+        private String surroundingFacility;
+
+        /**
+         * 适宜人群
+         */
+        private String suitablePeople;
+
+        /**
+         * 交通情况
+         */
+        private String trafficInfo;
+
+        /**
+         * 税费信息
+         */
+        private String taxesInfo;
+
+        /**
+         * 销售信息
+         */
+        private String saleInfo;
+
+        /**
+         * 卖点
+         */
+        private String sellingPoint;
+    }
+
+    /**
+     * 房间布局
+     */
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Data
+    public static class RoomLayout {
+
+        /**
+         * 房间类型
+         */
+        private String type;
+
+        /**
+         * 面积
+         */
+        private String area;
+
+        /**
+         * 朝向
+         */
+        private String orientation;
+
+        /**
+         * 窗户类型
+         */
+        private String window;
+    }
+
+    /**
+     * 房屋照片
+     */
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Data
+    public static class HousePhoto {
+
+        /**
+         * 说明
+         */
+        private String desc;
+
+        /**
+         * 资源地址
+         */
+        private String uri;
+    }
+}
