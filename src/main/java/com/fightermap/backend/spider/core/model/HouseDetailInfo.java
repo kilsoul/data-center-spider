@@ -4,21 +4,35 @@ package com.fightermap.backend.spider.core.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 房屋明细信息
  *
  * @author zengqk
  */
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
-public class HouseDetailInfo {
+public class HouseDetailInfo extends BaseData {
+
+    /**
+     * id
+     */
+    private String id;
+
+    /**
+     * 页面地址
+     */
+    private String url;
 
     /**
      * 基本信息
@@ -113,6 +127,11 @@ public class HouseDetailInfo {
          * 产权年限
          */
         private Integer houseHoldYears;
+
+        /**
+         * 未知字段
+         */
+        private Map<String, String> unknownField = new HashMap<>();
     }
 
     /**
@@ -168,6 +187,11 @@ public class HouseDetailInfo {
          * 房本备件
          */
         private String houseCredential;
+
+        /**
+         * 未知字段
+         */
+        private Map<String, String> unknownField = new HashMap<>();
     }
 
     /**
@@ -178,6 +202,21 @@ public class HouseDetailInfo {
     @Builder
     @Data
     public static class FeatureInfo {
+
+        /**
+         * 小区介绍
+         */
+        private String desc;
+
+        /**
+         * 户型介绍
+         */
+        private String roomLayoutDesc;
+
+        /**
+         * 装修描述
+         */
+        private String decorationDesc;
 
         /**
          * 周边配套
@@ -208,6 +247,11 @@ public class HouseDetailInfo {
          * 卖点
          */
         private String sellingPoint;
+
+        /**
+         * 未知字段
+         */
+        private Map<String, String> unknownField = new HashMap<>();
     }
 
     /**

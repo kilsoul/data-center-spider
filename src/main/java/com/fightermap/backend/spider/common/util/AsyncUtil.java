@@ -10,6 +10,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
+/**
+ * @author zengqk
+ */
 @Slf4j
 public class AsyncUtil {
     private static final Executor POOL = Executors.newFixedThreadPool(8);

@@ -1,10 +1,12 @@
 package com.fightermap.backend.spider.common.util;
 
-import com.fightermap.backend.spider.core.model.District;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 
+/**
+ * @author zengqk
+ */
 @Slf4j
 public class ClassUtil {
 
@@ -32,12 +34,5 @@ public class ClassUtil {
         } catch (IllegalAccessException e) {
             log.error("Can't access field[name={}] for class[{}]!", fieldName, clazz, e);
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        District district = new District();
-//        setField(district, "name", "test");
-        System.out.println(getFieldType(district, "test") == Boolean.class);
-        System.out.println(district);
     }
 }

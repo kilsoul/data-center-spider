@@ -2,7 +2,11 @@ package com.fightermap.backend.spider.common.constant;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
+/**
+ * @author zengqk
+ */
 public class Mapper {
     public static final Map<String, String> LIANJIA_BASE_INFO_MAPPER = new HashMap<>();
     public static final Map<String, String> LIANJIA_TRANSACTION_INFO_MAPPER = new HashMap<>();
@@ -11,6 +15,14 @@ public class Mapper {
 
     public static Boolean exists(String value) {
         return LIANJIA_BOOLEAN_MAPPER.keySet().stream().noneMatch(value::contains);
+    }
+
+    public static <T> T existsTransfer(String value, Supplier<T> supplier, T defaultValue) {
+        if (exists(value)) {
+            return supplier.get();
+        } else {
+            return defaultValue;
+        }
     }
 
     static {
@@ -36,6 +48,9 @@ public class Mapper {
         LIANJIA_TRANSACTION_INFO_MAPPER.put("抵押信息", "mortgageInfo");
         LIANJIA_TRANSACTION_INFO_MAPPER.put("房本备件", "houseCredential");
 
+        LIANJIA_FEATURE_INFO_MAPPER.put("小区介绍", "desc");
+        LIANJIA_FEATURE_INFO_MAPPER.put("户型介绍", "roomLayoutDesc");
+        LIANJIA_FEATURE_INFO_MAPPER.put("装修描述", "decorationDesc");
         LIANJIA_FEATURE_INFO_MAPPER.put("周边配套", "surroundingFacility");
         LIANJIA_FEATURE_INFO_MAPPER.put("适宜人群", "suitablePeople");
         LIANJIA_FEATURE_INFO_MAPPER.put("交通出行", "trafficInfo");
@@ -44,6 +59,7 @@ public class Mapper {
         LIANJIA_FEATURE_INFO_MAPPER.put("核心卖点", "sellingPoint");
 
         LIANJIA_BOOLEAN_MAPPER.put("无", Boolean.FALSE);
+        LIANJIA_BOOLEAN_MAPPER.put("未知", Boolean.FALSE);
         LIANJIA_BOOLEAN_MAPPER.put("没有", Boolean.FALSE);
         LIANJIA_BOOLEAN_MAPPER.put("暂无数据", Boolean.FALSE);
     }

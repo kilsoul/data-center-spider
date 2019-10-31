@@ -3,6 +3,7 @@ package com.fightermap.backend.spider.core.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -12,11 +13,12 @@ import java.util.List;
  *
  * @author zengqk
  */
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
-public class HouseShortInfo {
+public class HouseShortInfo extends BaseData{
 
     /**
      * id
