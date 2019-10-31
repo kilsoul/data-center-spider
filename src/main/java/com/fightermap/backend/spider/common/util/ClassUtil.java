@@ -37,7 +37,7 @@ public class ClassUtil {
     public static void main(String[] args) throws Exception {
         District district = new District();
 //        setField(district, "name", "test");
-        System.out.println(getFieldType(district,"test") == Boolean.class);
+        System.out.println(getFieldType(district, "test") == Boolean.class);
         System.out.println(district);
     }
 }

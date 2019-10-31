@@ -16,15 +16,18 @@ import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.selector.Html;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static com.fightermap.backend.spider.common.constant.Constant.DEFAULT_DATE_FORMATTER;
 import static com.fightermap.backend.spider.common.constant.Constant.SQUARE_METER;
-import static com.fightermap.backend.spider.common.constant.Mapper.*;
+import static com.fightermap.backend.spider.common.constant.Mapper.LIANJIA_BASE_INFO_MAPPER;
+import static com.fightermap.backend.spider.common.constant.Mapper.LIANJIA_FEATURE_INFO_MAPPER;
+import static com.fightermap.backend.spider.common.constant.Mapper.LIANJIA_TRANSACTION_INFO_MAPPER;
+import static com.fightermap.backend.spider.common.constant.Mapper.exists;
 import static com.fightermap.backend.spider.common.util.AsyncUtil.acquire;
 import static com.fightermap.backend.spider.common.util.AsyncUtil.execute;
-import static com.fightermap.backend.spider.common.util.ClassUtil.getFieldType;
 import static com.fightermap.backend.spider.common.util.ClassUtil.setField;
 
 public class LianjiaPageProcessor implements PageProcessor {
