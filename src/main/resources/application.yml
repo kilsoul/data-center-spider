@@ -1,3 +1,24 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/fightermap?characterEncoding=utf-8&useSSL=false
+    username: spider
+    password: spider
+    hikari:
+      connection-test-query: select 1 from dual
+      maximum-pool-size: 10
+      minimum-idle: 5
+      pool-name: spider-db-pool
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    open-in-view: true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
 logging:
   level:
     root: info

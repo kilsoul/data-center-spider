@@ -1,6 +1,7 @@
 package com.fightermap.backend.spider.common.util;
 
 import com.fightermap.backend.spider.common.constant.Constant;
+import com.fightermap.backend.spider.common.constant.Regex;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -63,6 +64,16 @@ public class PageUtil {
         return getMatcher(url, REGEX_URL_PATH, 1);
     }
 
+    public static String subFirstDomain(String url) {
+        return subDomain(url, 0);
+    }
+
+    public static String subDomain(String url, int index) {
+        String ch = "://";
+        int i = url.indexOf(ch);
+        return url.substring(i + ch.length()).split("\\.")[index];
+    }
+
     public static String subHostBase(String url) {
         return getMatcher(url, REGEX_URL_PATH, 1).concat(getMatcher(url, REGEX_URL_PATH, 2));
     }
@@ -112,6 +123,21 @@ public class PageUtil {
 
     public static void main(String[] args) {
         String url = "https://sh.lianjia.com/ershoufang/pudong";
+
+//        System.out.println(subFirstDomain(url));
+
+        String home = "https://sh.lianjia.com/ershoufang";
+        String disUrl = "https://sh.lianjia.com/ershoufang/pudong";
+        String posUrl = "https://sh.lianjia.com/ershoufang/pudong/zhangjiang";
+        System.out.println(PageUtil.isMatch(home, Regex.Lianjia.HOME));
+        System.out.println(PageUtil.isMatch(disUrl, Regex.Lianjia.HOME));
+        System.out.println(PageUtil.isMatch(posUrl, Regex.Lianjia.HOME));
+        System.out.println(PageUtil.isMatch(home, Regex.Lianjia.DISTRICT));
+        System.out.println(PageUtil.isMatch(disUrl, Regex.Lianjia.DISTRICT));
+        System.out.println(PageUtil.isMatch(posUrl, Regex.Lianjia.DISTRICT));
+        System.out.println(PageUtil.isMatch(home, Regex.Lianjia.POSITION));
+        System.out.println(PageUtil.isMatch(disUrl, Regex.Lianjia.POSITION));
+        System.out.println(PageUtil.isMatch(posUrl, Regex.Lianjia.POSITION));
 
         String regex = "(http[s]?://[\\w.\\w]*)(/?\\w+)(/?.*/?)";
 //        String regex = "http[s]?://[a-z]+\\.[a-zA-Z0-9]+/\\w+/.*";

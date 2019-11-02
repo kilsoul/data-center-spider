@@ -1,4 +1,4 @@
-package com.fightermap.backend.spider.core.model;
+package com.fightermap.backend.spider.core.model.bo.spider;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Data
-public class District extends BaseData{
+public class District extends BaseData {
 
     /**
      * 行政区名
@@ -32,4 +32,9 @@ public class District extends BaseData{
      * 行政区访问地址
      */
     private String url;
+
+    /**
+     * 市级名称
+     */
+    private String cityName;
 }

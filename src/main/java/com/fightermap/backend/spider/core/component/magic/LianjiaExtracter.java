@@ -1,10 +1,11 @@
 package com.fightermap.backend.spider.core.component.magic;
 
 import com.fightermap.backend.spider.common.constant.Regex;
-import com.fightermap.backend.spider.core.model.District;
-import com.fightermap.backend.spider.core.model.HouseDetailInfo;
-import com.fightermap.backend.spider.core.model.HouseShortInfo;
-import com.fightermap.backend.spider.core.model.Position;
+import com.fightermap.backend.spider.common.enums.SourceType;
+import com.fightermap.backend.spider.core.model.bo.spider.District;
+import com.fightermap.backend.spider.core.model.bo.spider.HouseDetailInfo;
+import com.fightermap.backend.spider.core.model.bo.spider.HouseShortInfo;
+import com.fightermap.backend.spider.core.model.bo.spider.Position;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -26,6 +27,7 @@ import static com.fightermap.backend.spider.common.util.AsyncUtil.acquire;
 import static com.fightermap.backend.spider.common.util.AsyncUtil.execute;
 import static com.fightermap.backend.spider.common.util.ClassUtil.setField;
 import static com.fightermap.backend.spider.common.util.PageUtil.concatUrlPath;
+import static com.fightermap.backend.spider.common.util.PageUtil.subFirstDomain;
 import static com.fightermap.backend.spider.common.util.PageUtil.subKeyBeforeWords;
 
 /**
@@ -34,6 +36,7 @@ import static com.fightermap.backend.spider.common.util.PageUtil.subKeyBeforeWor
  * @author zengqk
  */
 public class LianjiaExtracter extends AbstractExtracter {
+    private final SourceType sourceType = SourceType.LIANJIA;
 
     /**
      * 获取区级
@@ -51,6 +54,8 @@ public class LianjiaExtracter extends AbstractExtracter {
             district.setUrl(concatUrlPath(super.getHost(), Arrays.asList(districtPath)));
             district.setChineseName(element.text());
             district.setHost(super.getHost());
+            district.setSourceType(sourceType);
+            district.setCityName(subFirstDomain(super.getHost()));
             districtList.add(district);
         }
         return districtList;
@@ -82,6 +87,7 @@ public class LianjiaExtracter extends AbstractExtracter {
             position.setChineseName(element.text());
             position.setDistrictName(districtName);
             position.setHost(super.getHost());
+            position.setSourceType(sourceType);
             positionList.add(position);
         }
         return positionList;
@@ -120,6 +126,7 @@ public class LianjiaExtracter extends AbstractExtracter {
             data.setTotalPrice(totalPrice);
             data.setUnitPrice(unitPrice.replaceAll("单价", "").replaceAll("元/平米", ""));
             data.setHost(super.getHost());
+            data.setSourceType(sourceType);
             result.add(data);
         }
         return result;
@@ -147,6 +154,7 @@ public class LianjiaExtracter extends AbstractExtracter {
                 .housePhotos(execute(housePhotosFuture, "Get house photos", new ArrayList<>()))
                 .build();
         houseDetailInfo.setHost(super.getHost());
+        houseDetailInfo.setSourceType(sourceType);
 
         return houseDetailInfo;
     }

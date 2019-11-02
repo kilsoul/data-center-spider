@@ -1,4 +1,4 @@
-package com.fightermap.backend.spider.core.model;
+package com.fightermap.backend.spider.core.model.bo.spider;
 
 
 import lombok.AllArgsConstructor;
