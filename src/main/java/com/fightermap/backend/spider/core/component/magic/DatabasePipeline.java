@@ -2,12 +2,12 @@ package com.fightermap.backend.spider.core.component.magic;
 
 import com.fightermap.backend.spider.common.enums.AreaType;
 import com.fightermap.backend.spider.common.enums.SourceType;
+import com.fightermap.backend.spider.core.model.bo.spider.BaseData;
 import com.fightermap.backend.spider.core.model.bo.spider.District;
 import com.fightermap.backend.spider.core.model.bo.spider.HouseBriefInfo;
 import com.fightermap.backend.spider.core.model.bo.spider.HouseDetailInfo;
 import com.fightermap.backend.spider.core.model.bo.spider.Position;
 import com.fightermap.backend.spider.core.model.entity.Area;
-import com.fightermap.backend.spider.core.model.entity.HouseBase;
 import com.fightermap.backend.spider.core.model.entity.HouseBrief;
 import com.fightermap.backend.spider.core.service.AreaService;
 import com.fightermap.backend.spider.core.service.HouseBriefService;
@@ -18,7 +18,6 @@ import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +28,6 @@ import static com.fightermap.backend.spider.common.constant.Constant.ITEM_KEY_DI
 import static com.fightermap.backend.spider.common.constant.Constant.ITEM_KEY_HOUSE_DETAIL_INFO;
 import static com.fightermap.backend.spider.common.constant.Constant.ITEM_KEY_HOUSE_SHORT_INFO_LIST;
 import static com.fightermap.backend.spider.common.constant.Constant.ITEM_KEY_POSITION_LIST;
-import static com.fightermap.backend.spider.common.util.PageUtil.getAreaFromUrl;
 
 /**
  * @author zengqk
@@ -79,7 +77,7 @@ public class DatabasePipeline implements Pipeline {
         AreaType areaType = AreaType.DISTRICT;
         District district = districtList.get(0);
         SourceType sourceType = district.getSourceType();
-        List<String> paths = districtList.stream().map(d -> getAreaFromUrl(d.getUrl(), 1)).collect(Collectors.toList());
+        List<String> paths = districtList.stream().map(BaseData::getPath).collect(Collectors.toList());
         List<Area> parents = areaService.findAreaByType(sourceType, areaType.getParent());
         Long parentId = parents.stream().filter(p -> district.getCityName().equalsIgnoreCase(p.getName())).findFirst().map(Area::getId).orElse(0L);
         List<Area> dbInfoList = areaService.findAllBySourceTypeAndPathIn(sourceType, areaType, paths);
@@ -110,7 +108,7 @@ public class DatabasePipeline implements Pipeline {
         AreaType areaType = AreaType.POSITION;
         Position position = positionList.get(0);
         SourceType sourceType = position.getSourceType();
-        List<String> paths = positionList.stream().map(p -> getAreaFromUrl(p.getUrl(), 2)).collect(Collectors.toList());
+        List<String> paths = positionList.stream().map(BaseData::getPath).collect(Collectors.toList());
         List<Area> parents = areaService.findAreaByType(sourceType, areaType.getParent());
         Long parentId = parents.stream().filter(p -> position.getDistrictName().equalsIgnoreCase(p.getName())).findFirst().map(Area::getId).orElse(0L);
         List<Area> dbInfoList = areaService.findAllBySourceTypeAndPathIn(sourceType, areaType, paths);
