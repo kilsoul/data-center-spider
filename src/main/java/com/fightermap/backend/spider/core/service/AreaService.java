@@ -5,13 +5,19 @@ import com.fightermap.backend.spider.common.enums.SourceType;
 import com.fightermap.backend.spider.core.model.entity.Area;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author zengqk
  */
 public interface AreaService {
 
-    List<Area> findAllBySourceTypeAndNameIn(SourceType sourceType, AreaType areaType, List<String> names);
+    List<Area> findAllBySourceTypeAndPathIn(SourceType sourceType, AreaType areaType, List<String> paths);
+
+
+    List<Area> findAllByPathIn(SourceType sourceType, List<String> paths);
+
+    Optional<Area> findByPath(SourceType sourceType, String path);
 
     List<Area> findAllByIdIn(List<Long> ids);
 

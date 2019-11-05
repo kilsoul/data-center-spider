@@ -1,6 +1,5 @@
 package com.fightermap.backend.spider.core.model.entity;
 
-import com.fightermap.backend.spider.common.enums.AreaType;
 import com.fightermap.backend.spider.common.enums.SourceType;
 import com.fightermap.backend.spider.core.component.jpa.InstantConverter;
 import com.fightermap.backend.spider.core.component.jpa.SourceTypeConverter;
@@ -14,13 +13,10 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import java.time.Instant;
 
@@ -32,41 +28,50 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@SQLDelete(sql = "UPDATE area SET deleted=1,deleted_at=now(),version=version+1 WHERE id=? AND version=? AND deleted=0")
+@SQLDelete(sql = "UPDATE house_brief SET deleted=1,deleted_at=now(),version=version+1 WHERE id=? AND version=? AND deleted=0")
 @DynamicInsert
 @DynamicUpdate
 @EntityListeners({AuditingEntityListener.class})
-@Table(name = "area")
+@Table(name = "house_brief")
 @Entity
-public class Area extends AbstractAuditEntity {
+public class HouseBrief extends AbstractAuditEntity {
 
     @Convert(converter = SourceTypeConverter.class)
     @Column(name = "source_type")
     private SourceType sourceType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type")
-    private AreaType type;
+    @Column(name = "house_id")
+    private String houseId;
 
-    @Basic
-    @Column(name = "name")
-    private String name;
+    @Column(name = "title")
+    private String title;
 
-    @Basic
-    @Column(name = "name_cn")
-    private String nameCn;
+    @Column(name = "community_name")
+    private String communityName;
 
-    @Basic
-    @Column(name = "path")
-    private String path;
+    @Column(name = "area_id")
+    private Long areaId;
 
-    @Basic
-    @Column(name = "url")
-    private String url;
+    @Column(name = "area_name_cn")
+    private String areaNameCn;
 
-    @Basic
-    @Column(name = "parent_id")
-    private Long parentId;
+    @Column(name = "short_info")
+    private String shortInfo;
+
+    @Column(name = "follow_info")
+    private String followInfo;
+
+    @Column(name = "total_price")
+    private float totalPrice;
+
+    @Column(name = "unit_price")
+    private float unitPrice;
+
+    @Column(name = "tags")
+    private String tags;
+
+    @Column(name = "detail_url")
+    private String detailUrl;
 
     @Column(name = "deleted")
     private boolean deleted;

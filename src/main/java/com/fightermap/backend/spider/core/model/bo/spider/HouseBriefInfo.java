@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -14,11 +15,12 @@ import java.util.List;
  * @author zengqk
  */
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
-public class HouseShortInfo extends BaseData{
+public class HouseBriefInfo extends BaseData{
 
     /**
      * id
@@ -53,12 +55,12 @@ public class HouseShortInfo extends BaseData{
     /**
      * 总价
      */
-    private String totalPrice;
+    private Float totalPrice;
 
     /**
      * 单价
      */
-    private String unitPrice;
+    private Float unitPrice;
 
     /**
      * 标签

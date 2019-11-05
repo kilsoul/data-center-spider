@@ -1,10 +1,9 @@
 package com.fightermap.backend.spider.core.component.magic;
 
-import com.fightermap.backend.spider.common.constant.Regex;
 import com.fightermap.backend.spider.common.enums.SourceType;
 import com.fightermap.backend.spider.core.model.bo.spider.District;
+import com.fightermap.backend.spider.core.model.bo.spider.HouseBriefInfo;
 import com.fightermap.backend.spider.core.model.bo.spider.HouseDetailInfo;
-import com.fightermap.backend.spider.core.model.bo.spider.HouseShortInfo;
 import com.fightermap.backend.spider.core.model.bo.spider.Position;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.fightermap.backend.spider.common.constant.Constant.DEFAULT_DATE_FORMATTER;
 import static com.fightermap.backend.spider.common.constant.Constant.SQUARE_METER;
@@ -23,10 +23,14 @@ import static com.fightermap.backend.spider.common.constant.Mapper.LIANJIA_FEATU
 import static com.fightermap.backend.spider.common.constant.Mapper.LIANJIA_TRANSACTION_INFO_MAPPER;
 import static com.fightermap.backend.spider.common.constant.Mapper.exists;
 import static com.fightermap.backend.spider.common.constant.Mapper.existsTransfer;
+import static com.fightermap.backend.spider.common.constant.Regex.Lianjia.PAGE_KEY;
+import static com.fightermap.backend.spider.common.constant.Regex.Lianjia.SECOND_HAND_KEY;
 import static com.fightermap.backend.spider.common.util.AsyncUtil.acquire;
 import static com.fightermap.backend.spider.common.util.AsyncUtil.execute;
 import static com.fightermap.backend.spider.common.util.ClassUtil.setField;
 import static com.fightermap.backend.spider.common.util.PageUtil.concatUrlPath;
+import static com.fightermap.backend.spider.common.util.PageUtil.getAreaFromUrl;
+import static com.fightermap.backend.spider.common.util.PageUtil.replaceLast;
 import static com.fightermap.backend.spider.common.util.PageUtil.subFirstDomain;
 import static com.fightermap.backend.spider.common.util.PageUtil.subKeyBeforeWords;
 
@@ -48,13 +52,14 @@ public class LianjiaExtracter extends AbstractExtracter {
         for (Element element : elements) {
             //like: /ershoufang/pudong/pgx
             String href = element.attr("href");
-            String districtPath = subKeyBeforeWords(href, Regex.Lianjia.PAGE_KEY);
+            String districtPath = subKeyBeforeWords(href, PAGE_KEY);
             District district = new District();
             district.setName(subDistrictName(href));
             district.setUrl(concatUrlPath(super.getHost(), Arrays.asList(districtPath)));
             district.setChineseName(element.text());
             district.setHost(super.getHost());
             district.setSourceType(sourceType);
+            district.setPath(getAreaFromUrl(district.getUrl(), 1));
             district.setCityName(subFirstDomain(super.getHost()));
             districtList.add(district);
         }
@@ -62,7 +67,7 @@ public class LianjiaExtracter extends AbstractExtracter {
     }
 
     private String subDistrictName(String href) {
-        return subKeyBeforeWords(href, Regex.Lianjia.PAGE_KEY).replace(Regex.Lianjia.SECOND_HAND_KEY, "").replaceAll("/", "").trim();
+        return subKeyBeforeWords(href, PAGE_KEY).replace(SECOND_HAND_KEY, "").replaceAll("/", "").trim();
     }
 
     /**
@@ -75,19 +80,19 @@ public class LianjiaExtracter extends AbstractExtracter {
         Elements elements = document.select("div.position > dl > dd > div[data-role=ershoufang] > div > a:not([title])");
         for (Element element : elements) {
             // like: /ershoufang/beicai/pgx
-            String positionPath = subKeyBeforeWords(element.attr("href"), Regex.Lianjia.PAGE_KEY);
+            String positionPath = subKeyBeforeWords(element.attr("href"), PAGE_KEY);
             List<String> positionPaths = Arrays.asList(positionPath.split("/"));
             List<String> paths = new ArrayList<>();
             paths.add(positionPaths.get(1));
-            paths.add(districtName);
             paths.add(positionPaths.get(2));
             Position position = new Position();
-            position.setName(positionPath.replace(Regex.Lianjia.SECOND_HAND_KEY, "").replaceAll("/", "").trim());
+            position.setName(positionPath.replace(SECOND_HAND_KEY, "").replaceAll("/", "").trim());
             position.setUrl(concatUrlPath(super.getHost(), paths));
             position.setChineseName(element.text());
             position.setDistrictName(districtName);
             position.setHost(super.getHost());
             position.setSourceType(sourceType);
+            position.setPath(concatUrlPath("/".concat(subFirstDomain(super.getHost())), districtName, positionPaths.get(2)));
             positionList.add(position);
         }
         return positionList;
@@ -99,9 +104,16 @@ public class LianjiaExtracter extends AbstractExtracter {
      * @param document
      */
     @Override
-    public List<HouseShortInfo> extractShortInfo(Document document) {
+    public List<HouseBriefInfo> extractBriefInfo(Document document) {
+        String cityName = subFirstDomain(super.getHost());
+        String districtName = subDistrictName(document.select("div.position > dl > dd > div[data-role=ershoufang] > div > a[title].selected").first().attr("href"));
+        String positionName = document.select("div.position > dl > dd > div[data-role=ershoufang] > div:nth-child(2) > a.selected").attr("href");
+
+        districtName = districtName.replaceAll("/".concat(SECOND_HAND_KEY).concat("/"), "").replaceAll(PAGE_KEY.concat("[0-9]+?/?"), "");
+        positionName = positionName.replaceAll("/".concat(SECOND_HAND_KEY).concat("/"), "").replaceAll(PAGE_KEY.concat("[0-9]+?/?"), "");
+
         Elements secondHandHouseList = document.select("#content > div.leftContent > ul.sellListContent > li[class^=clear]");
-        List<HouseShortInfo> result = new ArrayList<>();
+        List<HouseBriefInfo> result = new ArrayList<>();
         for (Element content : secondHandHouseList) {
             String id = content.select("a.noresultRecommend.img").attr("data-housecode");
             String detailUrl = content.select("a.noresultRecommend.img").attr("href");
@@ -113,8 +125,9 @@ public class LianjiaExtracter extends AbstractExtracter {
             List<String> tags = content.select("div > div.tag > span").eachText();
             String totalPrice = content.select("div > div.priceInfo > div.totalPrice > span").text();
             String unitPrice = content.select("div > div.priceInfo > div.unitPrice").text();
+            String unitPriceNumber = unitPrice.replaceAll("单价", "").replaceAll("元/平米", "");
 
-            HouseShortInfo data = new HouseShortInfo();
+            HouseBriefInfo data = new HouseBriefInfo();
             data.setId(id);
             data.setDetailUrl(detailUrl);
             data.setTitle(title);
@@ -123,10 +136,11 @@ public class LianjiaExtracter extends AbstractExtracter {
             data.setShortInfo(shortInfo);
             data.setFollowInfo(followInfo);
             data.setTags(tags);
-            data.setTotalPrice(totalPrice);
-            data.setUnitPrice(unitPrice.replaceAll("单价", "").replaceAll("元/平米", ""));
+            data.setTotalPrice(existsTransfer(totalPrice, () -> Float.valueOf(totalPrice), 0.0f));
+            data.setUnitPrice(existsTransfer(unitPriceNumber, () -> Float.valueOf(unitPriceNumber), 0.0f));
             data.setHost(super.getHost());
             data.setSourceType(sourceType);
+            data.setPath(concatUrlPath("", cityName, districtName, positionName));
             result.add(data);
         }
         return result;
@@ -155,6 +169,14 @@ public class LianjiaExtracter extends AbstractExtracter {
                 .build();
         houseDetailInfo.setHost(super.getHost());
         houseDetailInfo.setSourceType(sourceType);
+        String path = document.select("div.overview > div.content > div.aroundInfo > div.areaName > span.info > a")
+                .eachAttr("href")
+                .stream()
+                .map(s -> replaceLast(s.replace("/" + SECOND_HAND_KEY, ""), "/", "", true))
+                .collect(Collectors.joining(""));
+        houseDetailInfo.setPath("/".concat(subFirstDomain(super.getHost())).concat(path));
+        String areaInfo = document.select("div.overview > div.content > div.aroundInfo > div.areaName > span.info").text();
+        houseDetailInfo.setAreaInfo(areaInfo);
 
         return houseDetailInfo;
     }
@@ -277,10 +299,10 @@ public class LianjiaExtracter extends AbstractExtracter {
         Elements layoutElements = document.select("#infoList > div.row");
         for (Element element : layoutElements) {
             HouseDetailInfo.RoomLayout roomLayout = new HouseDetailInfo.RoomLayout();
-            roomLayout.setType(element.select("div:nth-child(1)").text());
-            roomLayout.setArea(element.select("div:nth-child(2)").text());
-            roomLayout.setOrientation(element.select("div:nth-child(3)").text());
-            roomLayout.setWindow(element.select("div:nth-child(4)").text());
+            roomLayout.setType(element.child(0).text());
+            roomLayout.setArea(element.child(1).text());
+            roomLayout.setOrientation(element.child(2).text());
+            roomLayout.setWindow(element.child(3).text());
             roomLayouts.add(roomLayout);
         }
         return roomLayouts;
@@ -298,7 +320,7 @@ public class LianjiaExtracter extends AbstractExtracter {
         Elements pictureElements = document.select("div.m-content > div.box-l > div.newwrap > div.housePic > div.container > div.list > div[data-index]");
         for (Element element : pictureElements) {
             housePhotos.add(HouseDetailInfo.HousePhoto.builder()
-                    .desc(element.select("span.name").first().ownText())
+                    .name(element.select("span.name").first().ownText())
                     .uri(element.select("img").first().attr("src"))
                     .build());
         }

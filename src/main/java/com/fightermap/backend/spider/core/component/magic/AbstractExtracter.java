@@ -1,8 +1,8 @@
 package com.fightermap.backend.spider.core.component.magic;
 
 import com.fightermap.backend.spider.core.model.bo.spider.District;
+import com.fightermap.backend.spider.core.model.bo.spider.HouseBriefInfo;
 import com.fightermap.backend.spider.core.model.bo.spider.HouseDetailInfo;
-import com.fightermap.backend.spider.core.model.bo.spider.HouseShortInfo;
 import com.fightermap.backend.spider.core.model.bo.spider.Position;
 import org.jsoup.nodes.Document;
 
@@ -16,6 +16,8 @@ import java.util.List;
 public abstract class AbstractExtracter {
     private String host;
 
+    private String url;
+
     public String getHost() {
         return host;
     }
@@ -24,11 +26,19 @@ public abstract class AbstractExtracter {
         this.host = host;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     public abstract List<District> extractDistrict(Document document);
 
     public abstract List<Position> extractPosition(Document document);
 
-    public abstract List<HouseShortInfo> extractShortInfo(Document document);
+    public abstract List<HouseBriefInfo> extractBriefInfo(Document document);
 
     public abstract HouseDetailInfo extractDetailInfo(Document document);
 

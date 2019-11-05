@@ -1,6 +1,5 @@
 package com.fightermap.backend.spider.core.model.entity;
 
-import com.fightermap.backend.spider.common.enums.AreaType;
 import com.fightermap.backend.spider.common.enums.SourceType;
 import com.fightermap.backend.spider.core.component.jpa.InstantConverter;
 import com.fightermap.backend.spider.core.component.jpa.SourceTypeConverter;
@@ -14,13 +13,10 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import java.time.Instant;
 
@@ -32,41 +28,47 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@SQLDelete(sql = "UPDATE area SET deleted=1,deleted_at=now(),version=version+1 WHERE id=? AND version=? AND deleted=0")
+@SQLDelete(sql = "UPDATE house_room_layout SET deleted=1,deleted_at=now(),version=version+1 WHERE id=? AND version=? AND deleted=0")
 @DynamicInsert
 @DynamicUpdate
 @EntityListeners({AuditingEntityListener.class})
-@Table(name = "area")
+@Table(name = "house_room_layout")
 @Entity
-public class Area extends AbstractAuditEntity {
+public class HouseRoomLayout extends AbstractAuditEntity {
 
     @Convert(converter = SourceTypeConverter.class)
     @Column(name = "source_type")
     private SourceType sourceType;
 
-    @Enumerated(EnumType.STRING)
+    /**
+     * 房间基本信息ID
+     */
+    @Column(name = "house_base_id")
+    private Long houseBaseId;
+
+    /**
+     * 房间类型
+     */
     @Column(name = "type")
-    private AreaType type;
+    private String type;
 
-    @Basic
-    @Column(name = "name")
-    private String name;
+    /**
+     * 面积
+     */
+    @Column(name = "area")
+    private String area;
 
-    @Basic
-    @Column(name = "name_cn")
-    private String nameCn;
+    /**
+     * 朝向
+     */
+    @Column(name = "orientation")
+    private String orientation;
 
-    @Basic
-    @Column(name = "path")
-    private String path;
-
-    @Basic
-    @Column(name = "url")
-    private String url;
-
-    @Basic
-    @Column(name = "parent_id")
-    private Long parentId;
+    /**
+     * 窗户类型
+     */
+    @Column(name = "window")
+    private String window;
 
     @Column(name = "deleted")
     private boolean deleted;

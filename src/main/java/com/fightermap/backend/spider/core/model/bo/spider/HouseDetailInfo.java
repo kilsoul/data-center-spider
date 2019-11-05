@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.Map;
  * @author zengqk
  */
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -33,6 +35,11 @@ public class HouseDetailInfo extends BaseData {
      * 页面地址
      */
     private String url;
+
+    /**
+     * 区域信息
+     */
+    private String areaInfo;
 
     /**
      * 基本信息
@@ -296,7 +303,7 @@ public class HouseDetailInfo extends BaseData {
         /**
          * 说明
          */
-        private String desc;
+        private String name;
 
         /**
          * 资源地址

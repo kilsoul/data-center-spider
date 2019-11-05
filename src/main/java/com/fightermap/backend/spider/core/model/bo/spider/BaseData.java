@@ -21,4 +21,9 @@ public class BaseData {
      * 来源
      */
     private SourceType sourceType;
+
+    /**
+     * 行政区路径
+     */
+    private String path;
 }

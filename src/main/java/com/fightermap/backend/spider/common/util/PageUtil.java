@@ -1,14 +1,15 @@
 package com.fightermap.backend.spider.common.util;
 
 import com.fightermap.backend.spider.common.constant.Constant;
-import com.fightermap.backend.spider.common.constant.Regex;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.fightermap.backend.spider.common.constant.Constant.SPLIT_PATH;
+import static com.fightermap.backend.spider.common.constant.Regex.Lianjia.PAGE_KEY;
 
 
 /**
@@ -86,6 +87,14 @@ public class PageUtil {
         return formatUrl(url);
     }
 
+    public static String concatUrlPath(String base, String... appenders) {
+        String url = appendAfter(base, SPLIT_PATH)
+                .concat(Arrays.stream(appenders)
+                        .map(s -> formatPath(s).replaceFirst("/", ""))
+                        .collect(Collectors.joining("")));
+        return formatUrl(url);
+    }
+
     public static String formatPath(String path) {
         return appendAfter(appendBefore(path, SPLIT_PATH), SPLIT_PATH);
     }
@@ -95,6 +104,13 @@ public class PageUtil {
             return replaceLast(url, SPLIT_PATH, "", true);
         }
         return url;
+    }
+
+    public static String replaceHead(String str, String prefix, String replacement) {
+        if (!str.startsWith(prefix)) {
+            return str;
+        }
+        return str.replaceFirst(prefix, replacement);
     }
 
     public static String replaceLast(String str, String regex, String replacement, boolean ignore) {
@@ -121,6 +137,21 @@ public class PageUtil {
         return str;
     }
 
+    public static String getAreaFromUrl(String url, int pathCount) {
+        String[] str = url.replace("//", "").split("/");
+        int length = str.length;
+        StringBuilder result = new StringBuilder();
+        result.append("/").append(subFirstDomain(url));
+        for (int i = pathCount; i > 0; i--) {
+            result.append("/").append(str[length - i]);
+        }
+        return result.toString();
+    }
+
+    public static String getRawUrl(String url, String pageRegex) {
+        return url.replaceAll(pageRegex, "");
+    }
+
     public static void main(String[] args) {
         String url = "https://sh.lianjia.com/ershoufang/pudong";
 
@@ -129,15 +160,27 @@ public class PageUtil {
         String home = "https://sh.lianjia.com/ershoufang";
         String disUrl = "https://sh.lianjia.com/ershoufang/pudong";
         String posUrl = "https://sh.lianjia.com/ershoufang/pudong/zhangjiang";
-        System.out.println(PageUtil.isMatch(home, Regex.Lianjia.HOME));
-        System.out.println(PageUtil.isMatch(disUrl, Regex.Lianjia.HOME));
-        System.out.println(PageUtil.isMatch(posUrl, Regex.Lianjia.HOME));
-        System.out.println(PageUtil.isMatch(home, Regex.Lianjia.DISTRICT));
-        System.out.println(PageUtil.isMatch(disUrl, Regex.Lianjia.DISTRICT));
-        System.out.println(PageUtil.isMatch(posUrl, Regex.Lianjia.DISTRICT));
-        System.out.println(PageUtil.isMatch(home, Regex.Lianjia.POSITION));
-        System.out.println(PageUtil.isMatch(disUrl, Regex.Lianjia.POSITION));
-        System.out.println(PageUtil.isMatch(posUrl, Regex.Lianjia.POSITION));
+        String posUrl1 = "https://sh.lianjia.com/ershoufang/pudong/zhangjiang/pg1";
+
+        System.out.println(getRawUrl(posUrl, PAGE_KEY.concat("[0-9]+?/?")));
+//
+//        System.out.println(getAreaFromUrl(disUrl, 1));
+//        System.out.println(getAreaFromUrl(posUrl, 2));
+
+
+//        System.out.println(PageUtil.isMatch(home, Regex.Lianjia.HOME));
+//        System.out.println(PageUtil.isMatch(disUrl, Regex.Lianjia.HOME));
+//        System.out.println(PageUtil.isMatch(posUrl, Regex.Lianjia.HOME));
+//        System.out.println(PageUtil.isMatch(home, Regex.Lianjia.AREA));
+//        System.out.println(PageUtil.isMatch(disUrl, Regex.Lianjia.AREA));
+//        System.out.println(PageUtil.isMatch(posUrl, Regex.Lianjia.AREA));
+//        System.out.println(PageUtil.isMatch(home, Regex.Lianjia.POSITION));
+//        System.out.println(PageUtil.isMatch(disUrl, Regex.Lianjia.POSITION));
+//        System.out.println(PageUtil.isMatch(posUrl, Regex.Lianjia.POSITION));
+//
+//        System.out.println(PageUtil.getMatcher("https://sh.lianjia.com/ershoufang/pudong/zhangjiang/pg1", Regex.Lianjia.POSITION, 2));
+//
+//        System.out.println(Arrays.asList(replaceHead("/pudong/zhangjiang","/","").split("/")));
 
         String regex = "(http[s]?://[\\w.\\w]*)(/?\\w+)(/?.*/?)";
 //        String regex = "http[s]?://[a-z]+\\.[a-zA-Z0-9]+/\\w+/.*";

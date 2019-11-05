@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,11 +31,24 @@ public class AreaServiceImpl implements AreaService {
 
 
     @Override
-    public List<Area> findAllBySourceTypeAndNameIn(SourceType sourceType, AreaType areaType, List<String> names) {
-        if (CollectionUtils.isEmpty(names)) {
+    public List<Area> findAllBySourceTypeAndPathIn(SourceType sourceType, AreaType areaType, List<String> paths) {
+        if (CollectionUtils.isEmpty(paths)) {
             return Collections.emptyList();
         }
-        return areaRepository.findAllBySourceTypeAndTypeAndNameInAndDeletedFalse(sourceType, areaType, names);
+        return areaRepository.findAllBySourceTypeAndTypeAndPathInAndDeletedFalse(sourceType, areaType, paths);
+    }
+
+    @Override
+    public List<Area> findAllByPathIn(SourceType sourceType, List<String> paths) {
+        if (CollectionUtils.isEmpty(paths)) {
+            return Collections.emptyList();
+        }
+        return areaRepository.findAllBySourceTypeAndPathInAndDeletedFalse(sourceType, paths);
+    }
+
+    @Override
+    public Optional<Area> findByPath(SourceType sourceType, String path) {
+        return areaRepository.findFirstBySourceTypeAndPathAndDeletedFalse(sourceType, path);
     }
 
     @Override
@@ -58,7 +72,18 @@ public class AreaServiceImpl implements AreaService {
             Area db = dbInfoMap.get(name);
             //取字段变更的
             return !raw.equals(db);
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList())
+                .stream()
+                .peek(raw -> {
+                    String name = raw.getName();
+                    Area db = dbInfoMap.get(name);
+                    if (db != null) {
+                        raw.setId(db.getId());
+                        raw.setCreatedBy(db.getCreatedBy());
+                        raw.setCreatedAt(db.getCreatedAt());
+                        raw.setVersion(db.getVersion());
+                    }
+                }).collect(Collectors.toList());
     }
 
     @Override

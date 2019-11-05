@@ -6,6 +6,7 @@ import com.fightermap.backend.spider.core.model.entity.Area;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author zengqk
@@ -17,10 +18,14 @@ public interface AreaRepository extends JpaRepository<Area, Long> {
      *
      * @param sourceType
      * @param areaType
-     * @param names
+     * @param paths
      * @return
      */
-    List<Area> findAllBySourceTypeAndTypeAndNameInAndDeletedFalse(SourceType sourceType, AreaType areaType, List<String> names);
+    List<Area> findAllBySourceTypeAndTypeAndPathInAndDeletedFalse(SourceType sourceType, AreaType areaType, List<String> paths);
+
+    List<Area> findAllBySourceTypeAndPathInAndDeletedFalse(SourceType sourceType, List<String> paths);
+
+    Optional<Area> findFirstBySourceTypeAndPathAndDeletedFalse(SourceType sourceType, String path);
 
     /**
      * 根据ID查询

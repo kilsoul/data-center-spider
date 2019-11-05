@@ -29,7 +29,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class BaseEntity implements Persistable<Long> {
+public abstract class AbstractAuditEntity implements Persistable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
