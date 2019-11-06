@@ -9,13 +9,16 @@ import com.fightermap.backend.spider.core.model.bo.spider.District;
 import com.fightermap.backend.spider.core.model.bo.spider.HouseBriefInfo;
 import com.fightermap.backend.spider.core.model.bo.spider.HouseDetailInfo;
 import com.fightermap.backend.spider.core.model.bo.spider.Position;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.SpiderListener;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.selector.Html;
@@ -30,6 +33,7 @@ import static com.fightermap.backend.spider.common.constant.Constant.ITEM_KEY_HO
 import static com.fightermap.backend.spider.common.constant.Constant.ITEM_KEY_HOUSE_SHORT_INFO_LIST;
 import static com.fightermap.backend.spider.common.constant.Constant.ITEM_KEY_POSITION_LIST;
 import static com.fightermap.backend.spider.common.constant.Regex.Lianjia.PAGE_KEY;
+import static com.fightermap.backend.spider.common.util.AsyncUtil.POOL;
 import static com.fightermap.backend.spider.common.util.PageUtil.getMatcher;
 import static com.fightermap.backend.spider.common.util.PageUtil.getRawUrl;
 import static com.fightermap.backend.spider.common.util.PageUtil.subHost;
@@ -39,7 +43,7 @@ import static com.fightermap.backend.spider.common.util.PageUtil.subHost;
  */
 @Slf4j
 public class LianjiaPageProcessor implements PageProcessor {
-    private Site site = Site.me().setRetryTimes(3).setSleepTime(1000).setTimeOut(10000);
+    private Site site = Site.me().setRetryTimes(3).setSleepTime(500).setTimeOut(3000);
 
     @Override
     public void process(Page page) {
@@ -121,11 +125,24 @@ public class LianjiaPageProcessor implements PageProcessor {
     public static void main(String[] args) {
         Spider.create(new LianjiaPageProcessor())
 //                .addUrl("https://sh.lianjia.com/ershoufang")
-//                .addUrl("https://sh.lianjia.com/ershoufang/pudong")
-//                .addUrl("https://sh.lianjia.com/ershoufang/beicai/pg1")
+//                .addUrl("https://sh.lianjia.com/ershoufang/jinshan")
+                .addUrl("https://sh.lianjia.com/ershoufang/beicai/pg1")
 //                .addUrl("https://sh.lianjia.com/ershoufang/beicai")
-                .addUrl("https://sh.lianjia.com/ershoufang/107100960067.html")
+//                .addUrl("https://sh.lianjia.com/ershoufang/107100960067.html")
                 .addPipeline(new ConsolePipeline())
-                .run();
+                .thread(POOL, 4)
+                .setSpiderListeners(Lists.newArrayList(new SpiderListener() {
+                    @Override
+                    public void onSuccess(Request request) {
+                        String url = request.getUrl();
+                        System.out.println(url + "|" + Memory.get(url));
+                    }
+
+                    @Override
+                    public void onError(Request request) {
+
+                    }
+                }))
+                .start();
     }
 }

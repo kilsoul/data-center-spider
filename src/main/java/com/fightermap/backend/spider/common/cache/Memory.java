@@ -1,9 +1,11 @@
 package com.fightermap.backend.spider.common.cache;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -16,7 +18,10 @@ public class Memory {
     /**
      * 已处理的URL池
      */
-    public static final ConcurrentHashMap<String, Integer> PROCESSED_URL_POOL = new ConcurrentHashMap<>();
+    public static final Cache<String, Integer> PROCESSED_URL_POOL = CacheBuilder.newBuilder()
+            .maximumSize(1000000)
+            .expireAfterWrite(1, TimeUnit.DAYS)
+            .build();
 
     /**
      * 单条添加，如果重复则返回null
@@ -28,9 +33,10 @@ public class Memory {
         synchronized (Memory.class) {
             boolean isNew = false;
             if (!StringUtils.isEmpty(url)) {
-                isNew = PROCESSED_URL_POOL.putIfAbsent(url, 1) == null;
+                isNew = PROCESSED_URL_POOL.getIfPresent(url) == null;
             }
             if (isNew) {
+                PROCESSED_URL_POOL.put(url, 1);
                 return url;
             }
             return null;
@@ -45,5 +51,24 @@ public class Memory {
      */
     public static List<String> addAll(List<String> urls) {
         return urls.stream().filter(url -> add(url) != null).collect(Collectors.toList());
+    }
+
+    /**
+     * 移除缓存的url
+     *
+     * @param url
+     */
+    public static void remove(String url) {
+        PROCESSED_URL_POOL.invalidate(url);
+    }
+
+    /**
+     * 获取url缓存的值
+     *
+     * @param url
+     * @return
+     */
+    public static Integer get(String url) {
+        return PROCESSED_URL_POOL.getIfPresent(url);
     }
 }

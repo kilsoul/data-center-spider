@@ -22,8 +22,8 @@ public class SpiderController {
     }
 
     @GetMapping(path = "/start")
-    public void start(String sourceType, String seedUrl) {
-        spiderService.start(SourceType.map(sourceType), seedUrl);
+    public void start(String sourceType, String seedUrl,int threadCount) {
+        spiderService.start(SourceType.map(sourceType), seedUrl,threadCount);
     }
 
 }

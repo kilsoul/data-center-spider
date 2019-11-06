@@ -7,5 +7,5 @@ import com.fightermap.backend.spider.common.enums.SourceType;
  */
 public interface SpiderService {
 
-    void start(SourceType sourceType, String seedUrl);
+    void start(SourceType sourceType, String seedUrl,int threadCount);
 }
