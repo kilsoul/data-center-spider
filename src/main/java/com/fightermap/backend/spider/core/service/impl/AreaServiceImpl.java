@@ -10,9 +10,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -66,7 +68,12 @@ public class AreaServiceImpl implements AreaService {
 
     @Override
     public List<Area> merge(List<Area> rawList, List<Area> dbList) {
-        Map<String, Area> dbInfoMap = dbList.stream().collect(Collectors.toMap(Area::getName, Function.identity()));
+        Map<String, Area> dbInfoMap = dbList.stream()
+                .distinct()
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Area::getName))),
+                        tree -> tree.stream().collect(Collectors.toMap(Area::getName, Function.identity()))
+                ));
         return rawList.stream().filter(raw -> {
             String name = raw.getName();
             Area db = dbInfoMap.get(name);

@@ -10,9 +10,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,7 +52,11 @@ public class HousePhotoServiceImpl implements HousePhotoService {
     @Override
     public List<HousePhoto> merge(List<HousePhoto> rawList, List<HousePhoto> dbList) {
         Map<String, HousePhoto> dbInfoMap = dbList.stream()
-                .collect(Collectors.toMap(p -> generateKey(String.valueOf(p.getHouseBaseId()), p.getName()), Function.identity()));
+                .distinct()
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(p -> generateKey(String.valueOf(p.getHouseBaseId()), p.getName())))),
+                        tree -> tree.stream().collect(Collectors.toMap(p -> generateKey(String.valueOf(p.getHouseBaseId()), p.getName()), Function.identity()))
+                ));
         return rawList.stream().filter(raw -> {
             Long houseBaseId = raw.getHouseBaseId();
             HousePhoto db = dbInfoMap.get(generateKey(String.valueOf(houseBaseId), raw.getName()));
