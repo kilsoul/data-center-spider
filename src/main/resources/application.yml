@@ -25,3 +25,4 @@ logging:
     org.apache.http: info
   file:
     max-size: 50MB
+  path: logs/file.log

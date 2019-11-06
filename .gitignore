@@ -32,3 +32,6 @@ out/
 .vscode/
 
 .idea/
+logs/
+.log
+.logback
