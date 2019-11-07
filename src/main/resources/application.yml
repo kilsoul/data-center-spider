@@ -23,6 +23,4 @@ logging:
   level:
     root: info
     org.apache.http: info
-  file:
-    max-size: 50MB
-  path: logs/file.log
+  file: logs/file.log
