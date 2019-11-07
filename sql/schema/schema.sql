@@ -186,3 +186,20 @@ CREATE TABLE `house_transaction` (
   KEY `idx_house_base_id` (`source_type`,`house_base_id`,`deleted`,`deleted_at`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `spider_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `occur_time` datetime DEFAULT NULL COMMENT '发生时间',
+  `url` varchar(1024) NOT NULL COMMENT 'url地址',
+  `success` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否成功',
+  `created_by` varchar(64) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_by` varchar(64) NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `deleted_at` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `version` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+
+

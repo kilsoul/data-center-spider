@@ -3,6 +3,7 @@ package com.fightermap.backend.spider.common.cache;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang3.StringUtils;
+import us.codecraft.webmagic.Spider;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +15,11 @@ import java.util.stream.Collectors;
  * @author zengqk
  */
 public class Memory {
+
+    public static final Cache<String, Spider> SPIDER_POOL = CacheBuilder.newBuilder()
+            .maximumSize(10)
+            .expireAfterWrite(1, TimeUnit.DAYS)
+            .build();
 
     /**
      * 已处理的URL池

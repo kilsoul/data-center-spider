@@ -18,7 +18,11 @@ public class AsyncUtil {
     public static final ExecutorService POOL = Executors.newFixedThreadPool(8);
 
     public static <T> CompletableFuture<T> acquire(Supplier<T> supplier) {
-        return CompletableFuture.supplyAsync(supplier);
+        return CompletableFuture.supplyAsync(supplier, POOL);
+    }
+
+    public static CompletableFuture<Void> acquire(Runnable runnable) {
+        return CompletableFuture.runAsync(runnable, POOL);
     }
 
     public static <T> T execute(CompletableFuture<T> task, String taskName, T defaultValue) {
