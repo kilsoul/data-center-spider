@@ -24,3 +24,8 @@ logging:
     root: info
     org.apache.http: info
   file: logs/file.log
+
+fightermap:
+  spider:
+    scheduler:
+      default: "*/5 0 0 * * *"

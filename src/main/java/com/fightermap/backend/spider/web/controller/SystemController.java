@@ -1,5 +1,6 @@
 package com.fightermap.backend.spider.web.controller;
 
+import com.fightermap.backend.spider.common.exception.NotFoundException;
 import com.fightermap.backend.spider.core.model.entity.Area;
 import com.fightermap.backend.spider.core.repository.AreaRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,7 @@ public class SystemController {
 
     @GetMapping(path = "/area")
     public Area getArea(Long id) {
-        return areaRepository.findById(id).orElse(null);
+        throw new NotFoundException("Not found test.");
     }
 
 }

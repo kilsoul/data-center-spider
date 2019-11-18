@@ -2,6 +2,8 @@ package com.fightermap.backend.spider.core.service.impl;
 
 import com.fightermap.backend.spider.common.cache.Memory;
 import com.fightermap.backend.spider.common.enums.SourceType;
+import com.fightermap.backend.spider.common.exception.NotFoundException;
+import com.fightermap.backend.spider.common.util.AsyncUtil;
 import com.fightermap.backend.spider.core.component.magic.DatabasePipeline;
 import com.fightermap.backend.spider.core.component.magic.LianjiaPageProcessor;
 import com.fightermap.backend.spider.core.model.entity.SpiderLog;
@@ -39,7 +41,7 @@ public class SpiderServiceImpl implements SpiderService {
     }
 
     @Override
-    public void start(SourceType sourceType, String seedUrl, int threadCount) {
+    public Spider start(SourceType sourceType, String seedUrl, int threadCount) {
         PageProcessor pageProcessor = null;
         if (sourceType == SourceType.LIANJIA) {
             pageProcessor = new LianjiaPageProcessor();
@@ -47,7 +49,7 @@ public class SpiderServiceImpl implements SpiderService {
         if (pageProcessor == null) {
             throw new IllegalArgumentException(String.format("Unsupport spider for source[%s] and url[%s].", sourceType.name(), seedUrl));
         }
-        if (threadCount < 0) {
+        if (threadCount <= 0) {
             threadCount = 4;
         }
         log.info("Starting spider for source[{}] and url[{}].", sourceType.name(), seedUrl);
@@ -87,8 +89,18 @@ public class SpiderServiceImpl implements SpiderService {
             }
         }));
 
-        //todo 保存任务
         Memory.SPIDER_POOL.put(uuid, spider);
-        spider.start();
+        AsyncUtil.acquire(spider::start);
+        return spider;
+    }
+
+    @Override
+    public Spider stop(String uuid) {
+        Spider spider = Memory.SPIDER_POOL.getIfPresent(uuid);
+        if (spider == null) {
+            throw new NotFoundException(String.format("Can't find spider for uuid=%s", uuid));
+        }
+        spider.stop();
+        return spider;
     }
 }
