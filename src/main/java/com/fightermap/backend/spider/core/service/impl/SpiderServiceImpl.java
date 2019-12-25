@@ -2,16 +2,20 @@ package com.fightermap.backend.spider.core.service.impl;
 
 import com.fightermap.backend.spider.common.cache.Memory;
 import com.fightermap.backend.spider.common.enums.SourceType;
+import com.fightermap.backend.spider.common.enums.SpiderTaskStatus;
 import com.fightermap.backend.spider.common.exception.NotFoundException;
 import com.fightermap.backend.spider.common.util.AsyncUtil;
 import com.fightermap.backend.spider.core.component.magic.DatabasePipeline;
 import com.fightermap.backend.spider.core.component.magic.LianjiaPageProcessor;
 import com.fightermap.backend.spider.core.model.entity.SpiderLog;
+import com.fightermap.backend.spider.core.model.entity.SpiderTask;
 import com.fightermap.backend.spider.core.service.SpiderLogService;
 import com.fightermap.backend.spider.core.service.SpiderService;
+import com.fightermap.backend.spider.core.service.SpiderTaskService;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.SpiderListener;
@@ -35,25 +39,90 @@ public class SpiderServiceImpl implements SpiderService {
 
     private final SpiderLogService spiderLogService;
 
-    public SpiderServiceImpl(DatabasePipeline databasePipeline, SpiderLogService spiderLogService) {
+    private final SpiderTaskService spiderTaskService;
+
+    public SpiderServiceImpl(DatabasePipeline databasePipeline,
+                             SpiderLogService spiderLogService,
+                             SpiderTaskService spiderTaskService) {
         this.databasePipeline = databasePipeline;
         this.spiderLogService = spiderLogService;
+        this.spiderTaskService = spiderTaskService;
     }
 
     @Override
     public Spider start(SourceType sourceType, String seedUrl, int threadCount) {
+        Spider spider = generateSpider(sourceType, seedUrl, threadCount);
+
+        //保存任务信息
+        spiderTaskService.saveOrUpdate(SpiderTask.builder()
+                .spiderUuid(spider.getUUID())
+                .seedUrl(seedUrl)
+                .startTime(Instant.now())
+                .status(SpiderTaskStatus.RUNNING)
+                .build());
+
+        AsyncUtil.acquire(spider::start);
+
+        return spider;
+    }
+
+    @Override
+    public Spider startSync(SourceType sourceType, String seedUrl, int threadCount) {
+        StopWatch watch = new StopWatch();
+
+        Spider spider = generateSpider(sourceType, seedUrl, threadCount);
+
+        SpiderTask spiderTask = spiderTaskService.saveOrUpdate(SpiderTask.builder()
+                .spiderUuid(spider.getUUID())
+                .seedUrl(seedUrl)
+                .startTime(Instant.now())
+                .status(SpiderTaskStatus.RUNNING)
+                .build());
+
+        watch.start();
+
+        spider.run();
+
+        watch.stop();
+
+        log.info("Spider[uuid={}] used time: {}s.", spider.getUUID(), watch.getTotalTimeSeconds());
+
+        spiderTask.setEndTime(Instant.now());
+        spiderTask.setStatus(SpiderTaskStatus.COMPLETED);
+        spiderTaskService.saveOrUpdate(spiderTask);
+        return spider;
+    }
+
+    @Override
+    public Spider stop(String uuid) {
+        Spider spider = Memory.SPIDER_POOL.getIfPresent(uuid);
+        if (spider == null) {
+            throw new NotFoundException(String.format("Can't find spider for uuid=%s", uuid));
+        }
+        spider.stop();
+
+        //保存任务信息
+        spiderTaskService.saveOrUpdate(SpiderTask.builder()
+                .spiderUuid(spider.getUUID())
+                .endTime(Instant.now())
+                .status(SpiderTaskStatus.INTERRUPTED)
+                .build());
+        return spider;
+    }
+
+    private Spider generateSpider(SourceType sourceType, String seedUrl, int threadCount) {
         PageProcessor pageProcessor = null;
         if (sourceType == SourceType.LIANJIA) {
             pageProcessor = new LianjiaPageProcessor();
         }
         if (pageProcessor == null) {
-            throw new IllegalArgumentException(String.format("Unsupport spider for source[%s] and url[%s].", sourceType.name(), seedUrl));
+            throw new IllegalArgumentException(String.format("Un-support spider for source[%s] and url[%s].", sourceType.name(), seedUrl));
         }
         if (threadCount <= 0) {
             threadCount = 4;
         }
         log.info("Starting spider for source[{}] and url[{}].", sourceType.name(), seedUrl);
-        String uuid = UUID.randomUUID().toString();
+        final String uuid = UUID.randomUUID().toString();
         Spider spider = Spider.create(pageProcessor)
                 .setUUID(uuid)
                 .addUrl(seedUrl)
@@ -63,6 +132,14 @@ public class SpiderServiceImpl implements SpiderService {
         spider.setSpiderListeners(Lists.newArrayList(new SpiderListener() {
             @Override
             public void onSuccess(Request request) {
+                String url = request.getUrl();
+
+                spiderLogService.saveAsync(SpiderLog.builder()
+                        .spiderUuid(uuid)
+                        .url(url)
+                        .occurTime(Instant.now())
+                        .success(false)
+                        .build());
             }
 
             @Override
@@ -81,6 +158,7 @@ public class SpiderServiceImpl implements SpiderService {
                     Memory.remove(url);
                     //保存失败的任务
                     spiderLogService.saveAsync(SpiderLog.builder()
+                            .spiderUuid(uuid)
                             .url(url)
                             .occurTime(Instant.now())
                             .success(false)
@@ -90,17 +168,7 @@ public class SpiderServiceImpl implements SpiderService {
         }));
 
         Memory.SPIDER_POOL.put(uuid, spider);
-        AsyncUtil.acquire(spider::start);
-        return spider;
-    }
 
-    @Override
-    public Spider stop(String uuid) {
-        Spider spider = Memory.SPIDER_POOL.getIfPresent(uuid);
-        if (spider == null) {
-            throw new NotFoundException(String.format("Can't find spider for uuid=%s", uuid));
-        }
-        spider.stop();
         return spider;
     }
 }

@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author zengqk
  */
 public interface SpiderLogRepository extends JpaRepository<SpiderLog, Long> {
+
+
 }

@@ -26,6 +26,9 @@ logging:
   file: logs/file.log
 
 fightermap:
-  spider:
-    scheduler:
-      default: "*/5 0 0 * * *"
+  scheduler:
+    spiders:
+        lian-jia:
+          cron: "0 0 0 * * *"
+        check-spider-task:
+          cron: "0 0 0 * * *"

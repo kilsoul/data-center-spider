@@ -10,5 +10,7 @@ public interface SpiderService {
 
     Spider start(SourceType sourceType, String seedUrl,int threadCount);
 
+    Spider startSync(SourceType sourceType, String seedUrl,int threadCount);
+
     Spider stop(String uuid);
 }

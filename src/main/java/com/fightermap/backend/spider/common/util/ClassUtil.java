@@ -1,5 +1,6 @@
 package com.fightermap.backend.spider.common.util;
 
+import com.fightermap.backend.spider.core.model.entity.AbstractAuditEntity;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
@@ -34,5 +35,14 @@ public class ClassUtil {
         } catch (IllegalAccessException e) {
             log.error("Can't access field[name={}] for class[{}]!", fieldName, clazz, e);
         }
+    }
+
+    public static void copyBaseAuditFields(AbstractAuditEntity source, AbstractAuditEntity target) {
+        target.setId(source.getId());
+        target.setVersion(source.getVersion());
+        target.setCreatedAt(source.getCreatedAt());
+        target.setCreatedBy(source.getCreatedBy());
+        target.setUpdatedAt(source.getUpdatedAt());
+        target.setUpdatedBy(source.getUpdatedBy());
     }
 }

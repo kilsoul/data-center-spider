@@ -1,5 +1,6 @@
 package com.fightermap.backend.spider.core.model.entity;
 
+import com.fightermap.backend.spider.common.enums.SpiderTaskStatus;
 import com.fightermap.backend.spider.core.component.jpa.InstantConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,13 +28,13 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@SQLDelete(sql = "UPDATE spider_log SET deleted=1,deleted_at=now(),version=version+1 WHERE id=? AND version=? AND deleted=0")
+@SQLDelete(sql = "UPDATE spider_task SET deleted=1,deleted_at=now(),version=version+1 WHERE id=? AND version=? AND deleted=0")
 @DynamicInsert
 @DynamicUpdate
 @EntityListeners({AuditingEntityListener.class})
-@Table(name = "spider_log")
+@Table(name = "spider_task")
 @Entity
-public class SpiderLog extends AbstractAuditEntity {
+public class SpiderTask extends AbstractAuditEntity {
 
     /**
      * 任务UUID
@@ -43,26 +44,53 @@ public class SpiderLog extends AbstractAuditEntity {
     private String spiderUuid;
 
     /**
-     * 发生时间
-     */
-    @Builder.Default
-    @Basic
-    @Column(name = "occur_time")
-    private Instant occurTime = Instant.now();
-
-    /**
-     * url地址
+     * 开始时间
      */
     @Basic
-    @Column(name = "url")
-    private String url;
+    @Column(name = "start_time")
+    private Instant startTime;
 
     /**
-     * 是否成功
+     * 结束时间
      */
-    @Builder.Default
-    @Column(name = "success")
-    private boolean success = true;
+    @Basic
+    @Column(name = "end_time")
+    private Instant endTime;
+
+    /**
+     * 持续时间
+     */
+    @Basic
+    @Column(name = "duration")
+    private Long duration;
+
+    /**
+     * 种子url地址
+     */
+    @Basic
+    @Column(name = "seed_url")
+    private String seedUrl;
+
+    /**
+     * 成功数量
+     */
+    @Basic
+    @Column(name = "success_count")
+    private Integer successCount;
+
+    /**
+     * 失败数量
+     */
+    @Basic
+    @Column(name = "fail_count")
+    private Integer failCount;
+
+    /**
+     * 状态
+     */
+    @Basic
+    @Column(name = "status")
+    private SpiderTaskStatus status;
 
     @Column(name = "deleted")
     private boolean deleted;

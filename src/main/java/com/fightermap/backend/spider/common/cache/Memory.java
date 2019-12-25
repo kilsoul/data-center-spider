@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 public class Memory {
 
     public static final Cache<String, Spider> SPIDER_POOL = CacheBuilder.newBuilder()
-            .maximumSize(1000000)
-            .expireAfterWrite(1, TimeUnit.DAYS)
+            .maximumSize(1000)
+            .expireAfterWrite(12, TimeUnit.HOURS)
             .build();
 
     /**
@@ -26,7 +26,7 @@ public class Memory {
      */
     public static final Cache<String, Integer> PROCESSED_URL_POOL = CacheBuilder.newBuilder()
             .maximumSize(1000000)
-            .expireAfterWrite(1, TimeUnit.DAYS)
+            .expireAfterWrite(12, TimeUnit.HOURS)
             .build();
 
     /**
